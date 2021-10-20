@@ -41,28 +41,38 @@ def folder(path_test, path_train, path_val):
 
 
 def as_df(test_normal, test_pneu, train_normal, train_pneu, val_normal, val_pneu) :
-    print(len(test_normal), len(test_pneu))
+    print(len(test_normal), len(test_pneu), len(val_normal))
 
     #liste = [test_normal, test_pneu, train_normal, train_pneu, val_normal, val_pneu]
-        
+    
+    
+
     test = test_normal + test_pneu
     train = train_normal + train_pneu
     val = val_normal + val_pneu
     
+    
+    #print(test)
 
-    liste = [test, train, val]
-    for list in liste :
+    #liste = [test, train, val]
+    liste = [[test_normal, test_pneu], [train_normal, train_pneu], [val_normal, val_pneu]]
+    list_df = []
+    
+    for normal, pneu in liste :
         cls = []
-        print(list)
+        #print(list)
         #joining_normal = list.join('_normal')
         #joining_pneu = list.join('_pneu')
-        for index in range(len(list.join('_normal'))) :
+        for index in range(len(normal)) :
             cls.append("normal")
-        for index in range(len(list.join('_pneu'))) :
+        for index in range(len(pneu)) :
             cls.append("pneumonia")
+
+        list_df.append(pd.DataFrame({'class' : cls, 'image' : normal+pneu}))
         
-        df_ = pd.DataFrame({'class' : cls, 'image' : list})
-        df_.join(list)
+        print(list_df)
+        return list_df
+        #df_.join(list) = df_
 
     
 
@@ -117,7 +127,7 @@ if __name__ == "__main__":
     path_val = "/home/sdv/m2bi/rgoulancourt/Kaggle/data/archive/chest_xray/val"
 
     test_normal, test_pneu, train_normal, train_pneu, val_normal, val_pneu = folder(path_test, path_train, path_val)
-    df_test, df_train, df_val = as_df(test_normal, test_pneu, train_normal, train_pneu, val_normal, val_pneu)
+    all_df = as_df(test_normal, test_pneu, train_normal, train_pneu, val_normal, val_pneu)
     #listing = list(folder(path_test, path_train, path_val))
     #print(listing)
 
