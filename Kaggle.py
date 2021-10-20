@@ -41,28 +41,16 @@ def folder(path_test, path_train, path_val):
 
 
 def as_df(test_normal, test_pneu, train_normal, train_pneu, val_normal, val_pneu) :
-    print(len(test_normal), len(test_pneu), len(val_normal))
-
-    #liste = [test_normal, test_pneu, train_normal, train_pneu, val_normal, val_pneu]
-    
-    
 
     test = test_normal + test_pneu
     train = train_normal + train_pneu
     val = val_normal + val_pneu
     
-    
-    #print(test)
-
-    #liste = [test, train, val]
     liste = [[test_normal, test_pneu], [train_normal, train_pneu], [val_normal, val_pneu]]
     list_df = []
     
     for normal, pneu in liste :
         cls = []
-        #print(list)
-        #joining_normal = list.join('_normal')
-        #joining_pneu = list.join('_pneu')
         for index in range(len(normal)) :
             cls.append("normal")
         for index in range(len(pneu)) :
@@ -72,12 +60,7 @@ def as_df(test_normal, test_pneu, train_normal, train_pneu, val_normal, val_pneu
         
         print(list_df)
         return list_df
-        #df_.join(list) = df_
-
     
-
-
-
     '''
     cls = []
     for i in range(len(test_normal)) :
@@ -114,9 +97,7 @@ def load_images_from_folder(folder):
             images.append(img)
     return images
 '''
-#join(path, s) 
-#exists(path) 
-#samefile(f1, f2)
+
 
 if __name__ == "__main__":
     #path_test = "/Users/rgoulanc/Desktop/Rebecca/FAC/M2BI/KAGGLE/chest_xray/test"
