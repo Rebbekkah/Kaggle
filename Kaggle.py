@@ -97,28 +97,37 @@ def data_splitting(dataframes) :
 
 def Data_Augmentation(train_df, val_df, list_df) :
 	print("--------------------DATA AUGMENTATION ------------------------")
-	test_df = list_df[2]
-	# print(test_df)
+
+	test_df = list_df[0]
+	print("DATAFRAMES TYPE", type(test_df), type(train_df),type(val_df), test_df)
 	train_datagen = ImageDataGenerator(rescale = 1. / 255, shear_range = 0.2, zoom_range = 0.2,
 			horizontal_flip = True, rotation_range = 0.1, width_shift_range = 0.1, height_shift_range = 0.1)
 	# print(type(train_datagen))
 	# print(train_datagen)
 
 	val_datagen = ImageDataGenerator(rescale = 1/ 255.)
-	# print(type(val_datagen))
+	# print("----------------", type(val_datagen), "----------------")
 	# print(val_datagen)
-
+	print("CALIBRATION")
 	calibration_train = train_datagen.flow_from_dataframe(dataframe = train_df, x_col = 'image', y_col = 'class', class_mode = 'binary',
-			batch_size = BATCH_SIZE, seed = SEED_SET)
-	print(type(calibration_train), calibration_train)
-	print(train_df)
+			batch_size = BATCH_SIZE, seed = SEED_SET, target_size = (IMG_SIZE, IMG_SIZE))
+	print("train", type(calibration_train), calibration_train, "\n")
 
-	# calibration_train = train_datagen.flow_from_dataframe(x_col = 'image', y_col = 'class', class_mode = 'binary',
-	# 		batch_size = BATCH_SIZE, seed = SEED_SET)
+	calibration_val = val_datagen.flow_from_dataframe(dataframe = val_df, x_col = 'image', y_col = 'class', class_mode = 'binary',
+			batch_size = BATCH_SIZE, seed = SEED_SET, target_size = (IMG_SIZE, IMG_SIZE))
+	print("val", type(calibration_val), calibration_val, "\n")
+
+	calibration_test = test_df.flow_from_dataframe(dataframe = test_df, x_col = 'image', y_col = 'class', class_mode = 'binary', 
+			batch_size = 1, shuffle = False, target_size = (IMG_SIZE, IMG_SIZE))
+	print("test", type(calibration_test), calibration_test, "\n")
+
+
+	return calibration_test, calibration_train, calibration_val
 
 
 def CNN() :
-	pass
+	print("--------------------CNN--------------------")
+	
 
 
 
@@ -141,6 +150,6 @@ if __name__ == "__main__":
 	all_df = as_df(test_normal, test_pneu, train_normal, train_pneu, val_normal, val_pneu)
 	graph = data_visualisation(all_df)
 	train_data, val_data = data_splitting(all_df)
-	augmentation = Data_Augmentation(train_data, val_data, all_df)
+	augment_test, augment_train, augment_val = Data_Augmentation(train_data, val_data, all_df)
 
 
