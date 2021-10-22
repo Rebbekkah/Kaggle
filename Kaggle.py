@@ -2,6 +2,7 @@ import os, os.path
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 
 
@@ -94,6 +95,28 @@ def data_splitting(dataframes) :
 	return train_data, val_data
 
 
+def Data_Augmentation(train_df, val_df, list_df) :
+	print("--------------------DATA AUGMENTATION ------------------------")
+	test_df = list_df[2]
+	# print(test_df)
+	train_datagen = ImageDataGenerator(rescale = 1. / 255, shear_range = 0.2, zoom_range = 0.2,
+			horizontal_flip = True, rotation_range = 0.1, width_shift_range = 0.1, height_shift_range = 0.1)
+	# print(type(train_datagen))
+	# print(train_datagen)
+
+	val_datagen = ImageDataGenerator(rescale = 1/ 255.)
+	# print(type(val_datagen))
+	# print(val_datagen)
+
+	calibration_train = train_datagen.flow_from_dataframe(dataframe = train_df, x_col = 'image', y_col = 'class', class_mode = 'binary',
+			batch_size = BATCH_SIZE, seed = SEED_SET)
+	print(type(calibration_train), calibration_train)
+	print(train_df)
+
+	# calibration_train = train_datagen.flow_from_dataframe(x_col = 'image', y_col = 'class', class_mode = 'binary',
+	# 		batch_size = BATCH_SIZE, seed = SEED_SET)
+
+
 def CNN() :
 	pass
 
@@ -108,11 +131,16 @@ if __name__ == "__main__":
 	path_train = "/home/sdv/m2bi/rgoulancourt/Kaggle/data/archive/chest_xray/train"
 	path_val = "/home/sdv/m2bi/rgoulancourt/Kaggle/data/archive/chest_xray/val"
 
+	# Important parameters
+	IMG_SIZE = 224
+	BATCH_SIZE = 32
+	SEED_SET = 42
+
+
 	test_normal, test_pneu, train_normal, train_pneu, val_normal, val_pneu = folder(path_test, path_train, path_val)
 	all_df = as_df(test_normal, test_pneu, train_normal, train_pneu, val_normal, val_pneu)
 	graph = data_visualisation(all_df)
 	train_data, val_data = data_splitting(all_df)
+	augmentation = Data_Augmentation(train_data, val_data, all_df)
 
-
-	print("CNN PROG")
 
