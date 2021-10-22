@@ -1,10 +1,7 @@
-import PIL as pil
 import os, os.path
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import cv2
-from sklearn.model_selection import train_test_split
 
 
 
@@ -81,7 +78,24 @@ def data_visualisation(dataframes) :
 	return hist
 
 
+def data_splitting(dataframes) :
+	df_train = dataframes[1]
+	train_len = 0.80*len(df_train)
 
+	shuffled_train =  df_train.sample(frac = 1).reset_index(drop = True)
+	print("SHUFFELD DATA ----------------------", shuffled_train)
+	train_data = shuffled_train.iloc[1:int(train_len), :]
+	print("TRAIN DATA ----------------------------")
+	print(train_data)
+	val_data = shuffled_train.iloc[int(train_len):len(shuffled_train), :]
+	print("VAL DATA ----------------------------")
+	print(val_data)
+
+	return train_data, val_data
+
+
+def CNN() :
+	pass
 
 
 
@@ -97,3 +111,8 @@ if __name__ == "__main__":
 	test_normal, test_pneu, train_normal, train_pneu, val_normal, val_pneu = folder(path_test, path_train, path_val)
 	all_df = as_df(test_normal, test_pneu, train_normal, train_pneu, val_normal, val_pneu)
 	graph = data_visualisation(all_df)
+	train_data, val_data = data_splitting(all_df)
+
+
+	print("CNN PROG")
+
