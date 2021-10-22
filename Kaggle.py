@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras import callbacks
 
 
 
@@ -109,15 +110,16 @@ def Data_Augmentation(train_df, val_df, list_df) :
 	# print("----------------", type(val_datagen), "----------------")
 	# print(val_datagen)
 	print("CALIBRATION")
-	calibration_train = train_datagen.flow_from_dataframe(dataframe = train_df, x_col = 'image', y_col = 'class', class_mode = 'binary',
+	calibration_train = train_datagen.flow_from_dataframe(dataframe = train_df, directory = path_train, ################changer les paths
+			x_col = 'image', y_col = 'class', class_mode = 'binary',
 			batch_size = BATCH_SIZE, seed = SEED_SET, target_size = (IMG_SIZE, IMG_SIZE))
 	print("train", type(calibration_train), calibration_train, "\n")
 
-	calibration_val = val_datagen.flow_from_dataframe(dataframe = val_df, x_col = 'image', y_col = 'class', class_mode = 'binary',
+	calibration_val = val_datagen.flow_from_dataframe(dataframe = val_df, directory = path_val, x_col = 'image', y_col = 'class', class_mode = 'binary',
 			batch_size = BATCH_SIZE, seed = SEED_SET, target_size = (IMG_SIZE, IMG_SIZE))
 	print("val", type(calibration_val), calibration_val, "\n")
 
-	calibration_test = test_df.flow_from_dataframe(dataframe = test_df, x_col = 'image', y_col = 'class', class_mode = 'binary', 
+	calibration_test = test_df.flow_from_dataframe(dataframe = test_df, directory = path_test, x_col = 'image', y_col = 'class', class_mode = 'binary', 
 			batch_size = 1, shuffle = False, target_size = (IMG_SIZE, IMG_SIZE))
 	print("test", type(calibration_test), calibration_test, "\n")
 
@@ -125,9 +127,13 @@ def Data_Augmentation(train_df, val_df, list_df) :
 	return calibration_test, calibration_train, calibration_val
 
 
-def CNN() :
+def Custom() :
+	# callbacks pour éviter le surapprentissage
+	cb = callbacks.EarlyStopping(monitor = 'val_loss', min_delta = 0.0000000001, patience = 50, restore_best_weight = True)
+	control_learning_rate = callbacks.ReduceLROnPlateau(monitor = 'val_loss', factor = 0.25, patience = 10, min_lr = 0.1, min_delta = 0.0000001, cooldown = 5, verbose = 1)
+
+def CNN():
 	print("--------------------CNN--------------------")
-	
 
 
 
@@ -151,5 +157,5 @@ if __name__ == "__main__":
 	graph = data_visualisation(all_df)
 	train_data, val_data = data_splitting(all_df)
 	augment_test, augment_train, augment_val = Data_Augmentation(train_data, val_data, all_df)
-
+	Customization = Custom()
 
