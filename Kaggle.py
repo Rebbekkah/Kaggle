@@ -2,9 +2,27 @@ import os, os.path
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import tensorflow as tf
+from tensorflow import keras
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras import callbacks
+from tensorflow.keras import layers
+from tensorflow.keras.models import Model
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Conv2D
+from tensorflow.keras.layers import MaxPool2D
+from tensorflow.keras.layers import Flatten
+from tensorflow.keras.layers import Dense
 
+classifier = Sequential()
+
+
+#import tensorflow.keras.layers.Maxpool2D
+'''
+from tensorflow.keras.layers import Conv2D, MaxPool2D
+from tensorflow.keras.layers import MaxPool2D
+from tensorflow.python.keras.models import Sequential
+'''
 
 
 
@@ -129,22 +147,26 @@ def Data_Augmentation(train_df, val_df, list_df) :
 
 def Custom() :
 	# callbacks pour éviter le surapprentissage
-	cb = callbacks.EarlyStopping(monitor = 'val_loss', min_delta = 0.0000000001, patience = 50, restore_best_weight = True)
+	cb = callbacks.EarlyStopping(monitor = 'val_loss', min_delta = 0.0000000001, patience = 50, restore_best_weights = True)
 	control_learning_rate = callbacks.ReduceLROnPlateau(monitor = 'val_loss', factor = 0.25, patience = 10, min_lr = 0.1, min_delta = 0.0000001, cooldown = 5, verbose = 1)
 
-def CNN():
-	print("--------------------CNN--------------------")
-
-
+def model():
+	print("CNN----------------------------------")
+	inputs = layers.Input(shape = (IMG_SIZE, IMG_SIZE, 3))
+	x = layers.Conv2D(filters = 4, kernel_size = 4, strides = (1, 1), padding = 'valid')(inputs)
+	x = layers.BatchNormalization()(x) #Peut être utilisé avant ou après fonction d'activation/Maxpooling
+	x = layers.Activation('relu')(x)
+	#x = layers.Maxpool2D(pool_size = 2, strides = 1, padding = 'valid')(x)
+	x = layers.Maxpool2D()(x)
 
 
 if __name__ == "__main__":
-	#path_test = "/Users/rgoulanc/Desktop/Rebecca/FAC/M2BI/KAGGLE/chest_xray/test"
-	#path_train = "/Users/rgoulanc/Desktop/Rebecca/FAC/M2BI/KAGGLE/chest_xray/train"
-	#path_val = "/Users/rgoulanc/Desktop/Rebecca/FAC/M2BI/KAGGLE/chest_xray/val"
-	path_test = "/home/sdv/m2bi/rgoulancourt/Kaggle/data/archive/chest_xray/test"
-	path_train = "/home/sdv/m2bi/rgoulancourt/Kaggle/data/archive/chest_xray/train"
-	path_val = "/home/sdv/m2bi/rgoulancourt/Kaggle/data/archive/chest_xray/val"
+	path_test = "/Users/rgoulanc/Desktop/Rebecca/FAC/M2BI/KAGGLE/chest_xray/test"
+	path_train = "/Users/rgoulanc/Desktop/Rebecca/FAC/M2BI/KAGGLE/chest_xray/train"
+	path_val = "/Users/rgoulanc/Desktop/Rebecca/FAC/M2BI/KAGGLE/chest_xray/val"
+	#path_test = "/home/sdv/m2bi/rgoulancourt/Kaggle/data/archive/chest_xray/test"
+	#path_train = "/home/sdv/m2bi/rgoulancourt/Kaggle/data/archive/chest_xray/train"
+	#path_val = "/home/sdv/m2bi/rgoulancourt/Kaggle/data/archive/chest_xray/val"
 
 	# Important parameters
 	IMG_SIZE = 224
@@ -156,6 +178,7 @@ if __name__ == "__main__":
 	all_df = as_df(test_normal, test_pneu, train_normal, train_pneu, val_normal, val_pneu)
 	graph = data_visualisation(all_df)
 	train_data, val_data = data_splitting(all_df)
-	augment_test, augment_train, augment_val = Data_Augmentation(train_data, val_data, all_df)
+	#augment_test, augment_train, augment_val = Data_Augmentation(train_data, val_data, all_df)
 	Customization = Custom()
+	get_model = model()
 
