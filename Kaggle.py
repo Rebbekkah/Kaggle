@@ -153,14 +153,53 @@ def Custom() :
 
 def model():
 	print("CNN----------------------------------")
+
+	filters = 4
 	inputs = layers.Input(shape = (IMG_SIZE, IMG_SIZE, 3))
-	x = layers.Conv2D(filters = 4, kernel_size = 4, strides = (1, 1), padding = 'valid')(inputs)
+	#Première couche
+	x = layers.Conv2D(filters = filters, kernel_size = 4, strides = (1, 1), padding = 'valid')(inputs)
 	x = layers.BatchNormalization()(x) #Peut être utilisé avant ou après fonction d'activation/Maxpooling
 	x = layers.Activation('relu')(x)
 	x = layers.MaxPooling2D(pool_size = 2, strides = 1, padding = 'valid')(x)
 	#x = layers.MaxPooling2D()(x)
 	#print(type(x))
 	#print(x)
+	x = layers.Dropout(0.3)(x)
+
+	#Seconde couche
+	x = layers.Conv2D(filters = filters*2, kernel_size = 4, strides = (1, 1), padding = 'valid')(inputs)
+	x = layers.BatchNormalization()(x) 
+	x = layers.Activation('relu')(x)
+	x = layers.MaxPooling2D(pool_size = 2, strides = 1, padding = 'valid')(x)
+	x = layers.Dropout(0.3)(x)
+
+	#Troisième couche
+	x = layers.Conv2D(filters = filters*3, kernel_size = 4, strides = (1, 1), padding = 'valid')(inputs)
+	#x = layers.Conv2D(filters = filters*3, kernel_size = 4, strides = (1, 1), padding = 'valid')(inputs)
+	x = layers.BatchNormalization()(x) 
+	x = layers.Activation('relu')(x)
+	x = layers.MaxPooling2D(pool_size = 2, strides = 1, padding = 'valid')(x)
+	x = layers.Dropout(0.5)(x)
+
+
+	x = layers.Flatten()(x)
+	x = layers.Dense(filters*3, activation = 'relu')(x)
+	x = layers.Dropout(0.6)(x)
+
+
+	#Dernière couche --> sigmoid activation car résultat binaire
+	output = layers.Dense(1, activation = 'sigmoid')(x)
+
+	my_model = keras.Model(inputs = [inputs], outputs = output)
+
+	print(type(my_model), my_model)
+	return my_model
+
+
+
+def model_info(model) :
+	
+
 
 
 if __name__ == "__main__":
@@ -184,4 +223,5 @@ if __name__ == "__main__":
 	#augment_test, augment_train, augment_val = Data_Augmentation(train_data, val_data, all_df)
 	Customization = Custom()
 	get_model = model()
+	info = model_info(get_model)
 
