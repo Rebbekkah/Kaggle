@@ -11,6 +11,7 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Conv2D
 from tensorflow.keras.layers import MaxPool2D
+from tensorflow.keras.layers import MaxPooling2D
 from tensorflow.keras.layers import Flatten
 from tensorflow.keras.layers import Dense
 
@@ -156,8 +157,10 @@ def model():
 	x = layers.Conv2D(filters = 4, kernel_size = 4, strides = (1, 1), padding = 'valid')(inputs)
 	x = layers.BatchNormalization()(x) #Peut être utilisé avant ou après fonction d'activation/Maxpooling
 	x = layers.Activation('relu')(x)
-	#x = layers.Maxpool2D(pool_size = 2, strides = 1, padding = 'valid')(x)
-	x = layers.Maxpool2D()(x)
+	x = layers.MaxPooling2D(pool_size = 2, strides = 1, padding = 'valid')(x)
+	#x = layers.MaxPooling2D()(x)
+	#print(type(x))
+	#print(x)
 
 
 if __name__ == "__main__":
