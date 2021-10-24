@@ -134,11 +134,13 @@ def Data_Augmentation(train_df, val_df, list_df) :
 			batch_size = BATCH_SIZE, seed = SEED_SET, target_size = (IMG_SIZE, IMG_SIZE))
 	print("train", type(calibration_train), calibration_train, "\n")
 
-	calibration_val = val_datagen.flow_from_dataframe(dataframe = val_df, directory = path_val, x_col = 'image', y_col = 'class', class_mode = 'binary',
+	calibration_val = val_datagen.flow_from_dataframe(dataframe = val_df, directory = path_val, x_col = 'image',
+			 y_col = 'class', class_mode = 'binary',
 			batch_size = BATCH_SIZE, seed = SEED_SET, target_size = (IMG_SIZE, IMG_SIZE))
 	print("val", type(calibration_val), calibration_val, "\n")
 
-	calibration_test = test_df.flow_from_dataframe(dataframe = test_df, directory = path_test, x_col = 'image', y_col = 'class', class_mode = 'binary', 
+	calibration_test = test_df.flow_from_dataframe(dataframe = test_df, directory = path_test, x_col = 'image', 
+				y_col = 'class', class_mode = 'binary', 
 			batch_size = 1, shuffle = False, target_size = (IMG_SIZE, IMG_SIZE))
 	print("test", type(calibration_test), calibration_test, "\n")
 
@@ -149,7 +151,8 @@ def Data_Augmentation(train_df, val_df, list_df) :
 def Custom() :
 	# callbacks pour éviter le surapprentissage
 	cb = callbacks.EarlyStopping(monitor = 'val_loss', min_delta = 0.0000000001, patience = 50, restore_best_weights = True)
-	control_learning_rate = callbacks.ReduceLROnPlateau(monitor = 'val_loss', factor = 0.25, patience = 10, min_lr = 0.1, min_delta = 0.0000001, cooldown = 5, verbose = 1)
+	control_learning_rate = callbacks.ReduceLROnPlateau(monitor = 'val_loss', factor = 0.25, patience = 10, min_lr = 0.1, 
+			min_delta = 0.0000001, cooldown = 5, verbose = 1)
 
 def model():
 	print("CNN----------------------------------")
@@ -192,13 +195,20 @@ def model():
 
 	my_model = keras.Model(inputs = [inputs], outputs = output)
 
-	print(type(my_model), my_model)
+	#print(type(my_model), my_model)
 	return my_model
 
 
 
 def model_info(model) :
-	
+	#model.compile(optimizer = keras.optimizers.Nadam(learning_rate = 0.005), 
+	#	loss = 'binary_crossentropy', metrics = 'binary_accuracy', steps_per_execution = 1)
+	model.compile(optimizer = keras.optimizers.Nadam(learning_rate = 0.005), 
+		loss = 'binary_crossentropy', steps_per_execution = 1)
+	model_summary = model.summary()
+	print(model_summary)
+
+	history = model.fit
 
 
 
