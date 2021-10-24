@@ -19,6 +19,8 @@ from tensorflow.keras.layers import MaxPooling2D
 from tensorflow.keras.layers import Flatten
 from tensorflow.keras.layers import Dense
 
+import os
+os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 #classifier = Sequential()
 
 
@@ -166,6 +168,7 @@ def Custom() :
 
 def model():
 	print("CNN----------------------------------")
+	'''
 	filters = 4
 	#inputs = layers.Input(shape = (IMG_SIZE, IMG_SIZE, 3))
 	inputs = layers.Input(shape = (IMG_SIZE, IMG_SIZE, 3))
@@ -182,26 +185,27 @@ def model():
 	#print(type(x))
 	#print(x)
 	x = layers.Dropout(0.3)(x)
-
+	'''
 	#Seconde couche
-	x = layers.Conv2D(filters = filters*2, kernel_size = 4, strides = (1, 1), padding = 'valid')(inputs)
+	'''
+	x = layers.Conv2D(filters = filters*2, kernel_size = 4, strides = (1, 1), padding = 'valid')(x)
 	x = layers.BatchNormalization()(x) 
 	x = layers.Activation('relu')(x)
 	x = layers.MaxPooling2D(pool_size = 2, strides = 1, padding = 'valid')(x)
 	x = layers.Dropout(0.3)(x)
 
 	#Troisième couche
-	x = layers.Conv2D(filters = filters*3, kernel_size = 4, strides = (1, 1), padding = 'valid')(inputs)
-	#x = layers.Conv2D(filters = filters*3, kernel_size = 4, strides = (1, 1), padding = 'valid')(inputs)
+	x = layers.Conv2D(filters = filters*3, kernel_size = 4, strides = (1, 1), padding = 'valid')(x)
+	x = layers.Conv2D(filters = filters*3, kernel_size = 4, strides = (1, 1), padding = 'valid')(x)
 	x = layers.BatchNormalization()(x) 
 	x = layers.Activation('relu')(x)
 	x = layers.MaxPooling2D(pool_size = 2, strides = 1, padding = 'valid')(x)
 	x = layers.Dropout(0.5)(x)
-
-
+	'''
+	'''
 	x = layers.Flatten()(x)
 	x = layers.Dense(filters*3, activation = 'relu')(x)
-	x = layers.Dropout(0.6)(x)
+	x = layers.Dropout(0.4)(x)
 
 
 	#Dernière couche --> sigmoid activation car résultat binaire
@@ -212,6 +216,8 @@ def model():
 	#print(type(my_model), my_model)
 	return my_model
 	'''
+
+	
 	#Input shape = [width, height, color channels]
 	inputs = layers.Input(shape=(IMG_SIZE, IMG_SIZE, 3))
 	print("DIM IMPUTS {}".format(inputs))
@@ -251,7 +257,7 @@ def model():
 	my_model = keras.Model(inputs=[inputs], outputs=output)
 	
 	return my_model
-	'''
+	
 
 
 def model_info(model, train, val, callback, plateau) :
@@ -261,7 +267,7 @@ def model_info(model, train, val, callback, plateau) :
 	#	loss = 'binary_crossentropy', steps_per_execution = 1)
 	model_summary = model.summary()
 	print(model_summary)
-
+	'''
 	print("LEN TRAIN {}".format(len(train)))
 	print("LEN val {}".format(len(val)))
 
@@ -270,7 +276,7 @@ def model_info(model, train, val, callback, plateau) :
 	
 	print(train['image'])
 	print("PAHT TRAIN ---->  {}".format(path_train))
-
+	'''
 	print("----------------")
 	#train = np.expand_dims(train, axis = (0, 1))
 	#train = np.expand_dims(train, axis = 1)
@@ -284,10 +290,15 @@ def model_info(model, train, val, callback, plateau) :
 	#print(val)
 	#val = np.expand_dims(val, axis = 0)
 
+	#print(train.shape)
+	'''
 	history = model.fit(train, batch_size = BATCH_SIZE, epochs = 30, validation_data = val,
 		callbacks = [callback, plateau], steps_per_epoch = (len(train)/BATCH_SIZE),
 		validation_steps = (len(val)/BATCH_SIZE))
-
+	'''
+	history = model.fit(train, epochs = 30, validation_data = val,
+		callbacks = [callback, plateau], steps_per_epoch = (len(train)/BATCH_SIZE),
+		validation_steps = (len(val)/BATCH_SIZE))
 	print(history)
 
 
@@ -314,7 +325,8 @@ if __name__ == "__main__":
 
 	get_model = model()
 	#info = model_info(get_model, augment_train)
-	info = model_info(get_model, train_data, val_data, callback, lr)
+	#info = model_info(get_model, train_data, val_data, callback, lr)
+	info = model_info(get_model, img_train, img_val, callback, lr)
 	#augment_test, augment_train, augment_val = Data_Augmentation(train_data, val_data, all_df)
 
 
