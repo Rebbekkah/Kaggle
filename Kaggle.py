@@ -7,7 +7,8 @@ from PIL import Image
 import tensorflow as tf
 import matplotlib.image as mpimg
 from tensorflow import keras
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
+#from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from keras_preprocessing.image import ImageDataGenerator
 from tensorflow.keras import callbacks
 from tensorflow.keras import layers
 from tensorflow.keras.models import Model
@@ -118,18 +119,8 @@ def data_splitting(dataframes) :
 
 	return train_data, val_data
 
-'''
-def data_loading(train, test, list_df) :
-	train_img = []
-	test_img = []
-	val_img = []
-	print(train)
-	for classe, image in train :
-		train_img.append(mpimg.imread(image))
-	plt.imgshow(train_img)
-'''
 
-def Data_Loading(train_df, val_df, list_df) :
+def Data_Augmentation(train_df, val_df, list_df) :
 	print("--------------------DATA AUGMENTATION ------------------------")
 
 	test_df = list_df[0]
@@ -146,18 +137,21 @@ def Data_Loading(train_df, val_df, list_df) :
 	calibration_train = train_datagen.flow_from_dataframe(dataframe = train_df, directory = path_train, ################changer les paths
 			x_col = 'image', y_col = 'class', class_mode = 'binary',
 			batch_size = BATCH_SIZE, seed = SEED_SET, target_size = (IMG_SIZE, IMG_SIZE))
-	print("train", type(calibration_train), calibration_train, "\n")
+	print("TRAIN", type(calibration_train), calibration_train, "\n")
 
 	calibration_val = val_datagen.flow_from_dataframe(dataframe = val_df, directory = path_val, x_col = 'image',
 			 y_col = 'class', class_mode = 'binary',
 			batch_size = BATCH_SIZE, seed = SEED_SET, target_size = (IMG_SIZE, IMG_SIZE))
-	print("val", type(calibration_val), calibration_val, "\n")
+	print("VALIDATION", type(calibration_val), calibration_val, "\n")
 
-	calibration_test = test_df.flow_from_dataframe(dataframe = test_df, directory = path_test, x_col = 'image', 
+
+	test_datagen = ImageDataGenerator(rescale = 1/ 255.)
+	calibration_test = test_datagen.flow_from_dataframe(dataframe = test_df, directory = path_test, x_col = 'image', 
 				y_col = 'class', class_mode = 'binary', 
 			batch_size = 1, shuffle = False, target_size = (IMG_SIZE, IMG_SIZE))
 	print("test", type(calibration_test), calibration_test, "\n")
-
+	#for i in calibration_val :
+	#	print(i)
 
 	return calibration_test, calibration_train, calibration_val
 
@@ -277,14 +271,6 @@ def model_info(model, train, val, callback, plateau) :
 	print(train['image'])
 	print("PAHT TRAIN ---->  {}".format(path_train))
 
-	for (classe, img) in enumerate(train) :
-		#print(classe, img)
-		if classe == "pneumonia" :
-			img = os.path.join(path_train.join('PNEUMONIA'), img)
-		print(img)
-
-	#print(train)
-	
 	print("----------------")
 	#train = np.expand_dims(train, axis = (0, 1))
 	#train = np.expand_dims(train, axis = 1)
@@ -324,13 +310,12 @@ if __name__ == "__main__":
 	graph = data_visualisation(all_df)
 	train_data, val_data = data_splitting(all_df)
 	callback, lr = Custom()
-	#img_train, img_test, img_val = data_loading(train_data, val_data, all_df)
-	
+	img_train, img_test, img_val = Data_Augmentation(train_data, val_data, all_df)
 
 	get_model = model()
 	#info = model_info(get_model, augment_train)
 	info = model_info(get_model, train_data, val_data, callback, lr)
-	#augment_test, augment_train, augment_val = Data_Loading(train_data, val_data, all_df)
+	#augment_test, augment_train, augment_val = Data_Augmentation(train_data, val_data, all_df)
 
 
 
