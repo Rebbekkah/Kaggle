@@ -7,6 +7,7 @@ from PIL import Image
 import tensorflow as tf
 import matplotlib.image as mpimg
 from tensorflow import keras
+import seaborn as sns
 #from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from keras_preprocessing.image import ImageDataGenerator
 from tensorflow.keras import callbacks
@@ -300,6 +301,11 @@ def model_info(model, train, val, callback, plateau) :
 		callbacks = [callback, plateau], steps_per_epoch = (len(train)/BATCH_SIZE),
 		validation_steps = (len(val)/BATCH_SIZE))
 	print(history)
+
+
+
+
+	return history
 
 
 if __name__ == "__main__":
