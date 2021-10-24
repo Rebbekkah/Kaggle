@@ -1,6 +1,7 @@
 import os, os.path
 import pandas as pd
 import numpy as np
+import imageio
 import matplotlib.pyplot as plt
 from PIL import Image
 import tensorflow as tf
@@ -43,20 +44,20 @@ def folder(path_test, path_train, path_val):
 			new_path = os.path.join(path, "NORMAL")
 			for file in os.listdir(new_path):
 				if str(new_path) == os.path.join(path_test, "NORMAL"):
-					test_normal.append(file)						
+					test_normal.append(os.path.join(new_path, file))						
 				elif str(new_path) == os.path.join(path_train, "NORMAL"):
-					train_normal.append(file)
+					train_normal.append(os.path.join(new_path, file))
 				elif str(new_path) == os.path.join(path_val, "NORMAL"):
-					val_normal.append(file)
+					val_normal.append(os.path.join(new_path, file))
 		if os.path.exists(os.path.join(path, "PNEUMONIA")):
 			new_path = os.path.join(path, "PNEUMONIA")
 			for file in os.listdir(new_path):
 				if str(new_path) == os.path.join(path_test, "PNEUMONIA"):
-					test_pneu.append(file)		
+					test_pneu.append(os.path.join(new_path, file))		
 				elif str(new_path) == os.path.join(path_train, "PNEUMONIA"):
-					train_pneu.append(file)
+					train_pneu.append(os.path.join(new_path, file))
 				elif str(new_path) == os.path.join(path_val, "PNEUMONIA"):
-					val_pneu.append(file)
+					val_pneu.append(os.path.join(new_path, file))
 	return test_normal, test_pneu, train_normal, train_pneu, val_normal, val_pneu
 
 
@@ -69,6 +70,7 @@ def as_df(test_normal, test_pneu, train_normal, train_pneu, val_normal, val_pneu
 	
 	liste = [[test_normal, test_pneu], [train_normal, train_pneu], [val_normal, val_pneu]]
 	list_df = []
+	print("---------")
 	print(liste[2])
 	for normal, pneu in liste :
 		cls = []
@@ -271,17 +273,29 @@ def model_info(model, train, val, callback, plateau) :
 
 	print(train)
 	print("SHAPE TRAIN ---> {}".format(np.shape(train)))
+	
+	print(train['image'])
+	print("PAHT TRAIN ---->  {}".format(path_train))
 
-	train = np.expand_dims(train, axis = (0, 1))
+	for (classe, img) in enumerate(train) :
+		#print(classe, img)
+		if classe == "pneumonia" :
+			img = os.path.join(path_train.join('PNEUMONIA'), img)
+		print(img)
+
+	#print(train)
+	
+	print("----------------")
+	#train = np.expand_dims(train, axis = (0, 1))
 	#train = np.expand_dims(train, axis = 1)
-	print("SHAPE TRAIN EXPAND ---> {}".format(np.shape(train)))
+	#print("SHAPE TRAIN EXPAND ---> {}".format(np.shape(train)))
 
 	#train.reshape([-1, IMG_SIZE, IMG_SIZE, 3])
-	print(train)
+	#print(train)
 
-	print(val)
-	val = np.expand_dims(val, axis = (0, 1))
-	print(val)
+	#print(val)
+	#val = np.expand_dims(val, axis = (0, 1))
+	#print(val)
 	#val = np.expand_dims(val, axis = 0)
 
 	history = model.fit(train, batch_size = BATCH_SIZE, epochs = 30, validation_data = val,
@@ -309,7 +323,6 @@ if __name__ == "__main__":
 	all_df = as_df(test_normal, test_pneu, train_normal, train_pneu, val_normal, val_pneu)
 	graph = data_visualisation(all_df)
 	train_data, val_data = data_splitting(all_df)
-	#augment_test, augment_train, augment_val = Data_Augmentation(train_data, val_data, all_df)
 	callback, lr = Custom()
 	#img_train, img_test, img_val = data_loading(train_data, val_data, all_df)
 	
@@ -317,3 +330,8 @@ if __name__ == "__main__":
 	get_model = model()
 	#info = model_info(get_model, augment_train)
 	info = model_info(get_model, train_data, val_data, callback, lr)
+	#augment_test, augment_train, augment_val = Data_Loading(train_data, val_data, all_df)
+
+
+
+
