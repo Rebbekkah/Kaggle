@@ -2,7 +2,9 @@ import os, os.path
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from PIL import Image
 import tensorflow as tf
+import matplotlib.image as mpimg
 from tensorflow import keras
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras import callbacks
@@ -15,7 +17,7 @@ from tensorflow.keras.layers import MaxPooling2D
 from tensorflow.keras.layers import Flatten
 from tensorflow.keras.layers import Dense
 
-classifier = Sequential()
+#classifier = Sequential()
 
 
 #import tensorflow.keras.layers.Maxpool2D
@@ -114,8 +116,18 @@ def data_splitting(dataframes) :
 
 	return train_data, val_data
 
+'''
+def data_loading(train, test, list_df) :
+	train_img = []
+	test_img = []
+	val_img = []
+	print(train)
+	for classe, image in train :
+		train_img.append(mpimg.imread(image))
+	plt.imgshow(train_img)
+'''
 
-def Data_Augmentation(train_df, val_df, list_df) :
+def Data_Loading(train_df, val_df, list_df) :
 	print("--------------------DATA AUGMENTATION ------------------------")
 
 	test_df = list_df[0]
@@ -154,11 +166,17 @@ def Custom() :
 	control_learning_rate = callbacks.ReduceLROnPlateau(monitor = 'val_loss', factor = 0.25, patience = 10, min_lr = 0.1, 
 			min_delta = 0.0000001, cooldown = 5, verbose = 1)
 
+	return cb, control_learning_rate
+
 def model():
 	print("CNN----------------------------------")
-
 	filters = 4
+	#inputs = layers.Input(shape = (IMG_SIZE, IMG_SIZE, 3))
 	inputs = layers.Input(shape = (IMG_SIZE, IMG_SIZE, 3))
+
+	print("DIM IMPUTS {}".format(inputs))
+
+
 	#Première couche
 	x = layers.Conv2D(filters = filters, kernel_size = 4, strides = (1, 1), padding = 'valid')(inputs)
 	x = layers.BatchNormalization()(x) #Peut être utilisé avant ou après fonction d'activation/Maxpooling
@@ -197,19 +215,80 @@ def model():
 
 	#print(type(my_model), my_model)
 	return my_model
+	'''
+	#Input shape = [width, height, color channels]
+	inputs = layers.Input(shape=(IMG_SIZE, IMG_SIZE, 3))
+	print("DIM IMPUTS {}".format(inputs))
 
 
+	# Block One
+	x = layers.Conv2D(filters=16, kernel_size=3, padding='valid')(inputs)
+	x = layers.BatchNormalization()(x)
+	x = layers.Activation('relu')(x)
+	x = layers.MaxPool2D()(x)
+	x = layers.Dropout(0.2)(x)
 
-def model_info(model) :
+	# Block Two
+	x = layers.Conv2D(filters=32, kernel_size=3, padding='valid')(x)
+	x = layers.BatchNormalization()(x)
+	x = layers.Activation('relu')(x)
+	x = layers.MaxPool2D()(x)
+	x = layers.Dropout(0.2)(x)
+	
+	# Block Three
+	x = layers.Conv2D(filters=64, kernel_size=3, padding='valid')(x)
+	x = layers.Conv2D(filters=64, kernel_size=3, padding='valid')(x)
+	x = layers.BatchNormalization()(x)
+	x = layers.Activation('relu')(x)
+	x = layers.MaxPool2D()(x)
+	x = layers.Dropout(0.4)(x)
+
+	# Head
+	#x = layers.BatchNormalization()(x)
+	x = layers.Flatten()(x)
+	x = layers.Dense(64, activation='relu')(x)
+	x = layers.Dropout(0.5)(x)
+	
+	#Final Layer (Output)
+	output = layers.Dense(1, activation='sigmoid')(x)
+	
+	my_model = keras.Model(inputs=[inputs], outputs=output)
+	
+	return my_model
+	'''
+
+
+def model_info(model, train, val, callback, plateau) :
+	model.compile(optimizer = keras.optimizers.Adam(learning_rate = 0.005), 
+		loss = 'binary_crossentropy', metrics = ['accuracy'], steps_per_execution = 1)
 	#model.compile(optimizer = keras.optimizers.Nadam(learning_rate = 0.005), 
-	#	loss = 'binary_crossentropy', metrics = 'binary_accuracy', steps_per_execution = 1)
-	model.compile(optimizer = keras.optimizers.Nadam(learning_rate = 0.005), 
-		loss = 'binary_crossentropy', steps_per_execution = 1)
+	#	loss = 'binary_crossentropy', steps_per_execution = 1)
 	model_summary = model.summary()
 	print(model_summary)
 
-	history = model.fit
+	print("LEN TRAIN {}".format(len(train)))
+	print("LEN val {}".format(len(val)))
 
+	print(train)
+	print("SHAPE TRAIN ---> {}".format(np.shape(train)))
+
+	train = np.expand_dims(train, axis = (0, 1))
+	#train = np.expand_dims(train, axis = 1)
+	print("SHAPE TRAIN EXPAND ---> {}".format(np.shape(train)))
+
+	#train.reshape([-1, IMG_SIZE, IMG_SIZE, 3])
+	print(train)
+
+	print(val)
+	val = np.expand_dims(val, axis = (0, 1))
+	print(val)
+	#val = np.expand_dims(val, axis = 0)
+
+	history = model.fit(train, batch_size = BATCH_SIZE, epochs = 30, validation_data = val,
+		callbacks = [callback, plateau], steps_per_epoch = (len(train)/BATCH_SIZE),
+		validation_steps = (len(val)/BATCH_SIZE))
+
+	print(history)
 
 
 if __name__ == "__main__":
@@ -231,7 +310,10 @@ if __name__ == "__main__":
 	graph = data_visualisation(all_df)
 	train_data, val_data = data_splitting(all_df)
 	#augment_test, augment_train, augment_val = Data_Augmentation(train_data, val_data, all_df)
-	Customization = Custom()
-	get_model = model()
-	info = model_info(get_model)
+	callback, lr = Custom()
+	#img_train, img_test, img_val = data_loading(train_data, val_data, all_df)
+	
 
+	get_model = model()
+	#info = model_info(get_model, augment_train)
+	info = model_info(get_model, train_data, val_data, callback, lr)
