@@ -261,7 +261,7 @@ def model():
 	
 
 
-def model_info(model, train, val, callback, plateau) :
+def model_info(model, train, test, val, callback, plateau) :
 	model.compile(optimizer = keras.optimizers.Adam(learning_rate = 0.005), 
 		loss = 'binary_crossentropy', metrics = ['accuracy'], steps_per_execution = 1)
 	#model.compile(optimizer = keras.optimizers.Nadam(learning_rate = 0.005), 
@@ -302,10 +302,41 @@ def model_info(model, train, val, callback, plateau) :
 		validation_steps = (len(val)/BATCH_SIZE))
 	print(history)
 
+	fig, ax = plt.subplots(figsize = (20, 8))
+	sns.lineplot(x = history.epoch, y = history.history['loss'], err_style = 'bars')
+	sns.lineplot(x = history.epoch, y = history.history['val_loss'], err_style = 'bars')
+	ax.set_title('Évolution de la loss en fonction des epochs')
+	ax.set_ylabel('Loss')
+	ax.set_xlabel('Epoch')
+	ax.set_ylim(-5, 7)
+	ax.legend(['train', 'val'], loc = 'best')
+	plt.show()
+
+	fig, ax = plt.subplots(figsize = (20, 8))
+	sns.lineplot(x = history.epoch, y = history.history['accuracy'])
+	sns.lineplot(x = history.epoch, y = history.history['val_accuracy'])
+	ax.set_title('Évolution de l accuracy en fonction des epochs')
+	ax.set_ylabel('Accuracy')
+	ax.set_xlabel('Epoch')
+	ax.set_ylim(-5, 3)
+	ax.legend(['train', 'val'], loc = 'best')
+	plt.show()
 
 
+	print("-----------SCORING---------------")
 
-	return history
+	score_test = model.evaluate(test, verbose = 1, steps = (len(val)/BATCH_SIZE))
+	print(type(score_test), score_test)
+	print(score_test['test_loss'])
+
+
+	score_val = model.evaluate(val, verbose = 1, steps = (len(val)/BATCH_SIZE))
+	print(score_val)
+	print(score_val['val_loss'])
+
+	#score = 
+
+	return history, score
 
 
 if __name__ == "__main__":
@@ -332,7 +363,7 @@ if __name__ == "__main__":
 	get_model = model()
 	#info = model_info(get_model, augment_train)
 	#info = model_info(get_model, train_data, val_data, callback, lr)
-	info = model_info(get_model, img_train, img_val, callback, lr)
+	info = model_info(get_model, img_train, img_test, img_val, callback, lr)
 	#augment_test, augment_train, augment_val = Data_Augmentation(train_data, val_data, all_df)
 
 
