@@ -19,7 +19,7 @@ from tensorflow.keras.layers import MaxPool2D
 from tensorflow.keras.layers import MaxPooling2D
 from tensorflow.keras.layers import Flatten
 from tensorflow.keras.layers import Dense
-
+import cv2
 import os
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 #classifier = Sequential()
@@ -122,7 +122,25 @@ def data_splitting(dataframes) :
 
 	return train_data, val_data
 
+'''
+def plot_data(df) :
 
+	plt.figure(figsize=(12,12))
+	for i in range(len(df)) :
+		dataframe = df[i] 
+		for j in range(0, 5):
+			plt.subplot(3,4,j + 1)
+			print("---------------IMAGE----------------------")
+			print(dataframe[j])
+			img = cv2.imread(dataframe[j])
+			img = cv2.resize(img, (IMG_SIZE,IMG_SIZE))
+			plt.imshow(img)
+			plt.axis("off")
+
+	plt.tight_layout()
+
+	plt.show()
+'''
 def Data_Augmentation(train_df, val_df, list_df) :
 	print("--------------------DATA AUGMENTATION ------------------------")
 
@@ -137,7 +155,7 @@ def Data_Augmentation(train_df, val_df, list_df) :
 	# print("----------------", type(val_datagen), "----------------")
 	# print(val_datagen)
 	print("CALIBRATION")
-	calibration_train = train_datagen.flow_from_dataframe(dataframe = train_df, directory = path_train, ################changer les paths
+	calibration_train = train_datagen.flow_from_dataframe(dataframe = train_df, directory = path_train, 
 			x_col = 'image', y_col = 'class', class_mode = 'binary',
 			batch_size = BATCH_SIZE, seed = SEED_SET, target_size = (IMG_SIZE, IMG_SIZE))
 	print("TRAIN", type(calibration_train), calibration_train, "\n")
@@ -355,12 +373,12 @@ def model_info(model, train, test, val, callback, plateau) :
 
 
 if __name__ == "__main__":
-	path_test = "/Users/rgoulanc/Desktop/Rebecca/FAC/M2BI/KAGGLE/chest_xray/test"
-	path_train = "/Users/rgoulanc/Desktop/Rebecca/FAC/M2BI/KAGGLE/chest_xray/train"
-	path_val = "/Users/rgoulanc/Desktop/Rebecca/FAC/M2BI/KAGGLE/chest_xray/val"
-	#path_test = "/home/sdv/m2bi/rgoulancourt/Kaggle/data/archive/chest_xray/test"
-	#path_train = "/home/sdv/m2bi/rgoulancourt/Kaggle/data/archive/chest_xray/train"
-	#path_val = "/home/sdv/m2bi/rgoulancourt/Kaggle/data/archive/chest_xray/val"
+	#path_test = "/Users/rgoulanc/Desktop/Rebecca/FAC/M2BI/KAGGLE/chest_xray/test"
+	#path_train = "/Users/rgoulanc/Desktop/Rebecca/FAC/M2BI/KAGGLE/chest_xray/train"
+	#path_val = "/Users/rgoulanc/Desktop/Rebecca/FAC/M2BI/KAGGLE/chest_xray/val"
+	path_test = "/home/sdv/m2bi/rgoulancourt/Kaggle/data/archive/chest_xray/test"
+	path_train = "/home/sdv/m2bi/rgoulancourt/Kaggle/data/archive/chest_xray/train"
+	path_val = "/home/sdv/m2bi/rgoulancourt/Kaggle/data/archive/chest_xray/val"
 
 	# Important parameters
 	IMG_SIZE = 224
@@ -371,6 +389,7 @@ if __name__ == "__main__":
 	test_normal, test_pneu, train_normal, train_pneu, val_normal, val_pneu = folder(path_test, path_train, path_val)
 	all_df = as_df(test_normal, test_pneu, train_normal, train_pneu, val_normal, val_pneu)
 	graph = data_visualisation(all_df)
+	#plots = plot_data(all_df)
 	train_data, val_data = data_splitting(all_df)
 	callback, lr = Custom()
 	img_train, img_test, img_val = Data_Augmentation(train_data, val_data, all_df)
